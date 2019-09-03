@@ -55,6 +55,24 @@ server.post('/api/users', (req,res) => {
     }
 })
 
+//DELETE request
+//Note: Should be returning the deleted user info. Bug in the database?
+server.delete('/api/users/:id', (req,res) => {
+    const { id } = req.params
+
+    db.remove(id)
+    .then(user => {
+        user ? res.json(user) : res.status(404).json({
+            message: 'The user with the specified ID does not exist.'
+        })
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: 'The user could not be removed.'
+        })
+    })
+})
+
 server.listen(5000, () => {
     console.log(`Server running at http://localhost:5000/`);
 })
