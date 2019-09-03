@@ -56,7 +56,6 @@ server.post('/api/users', (req,res) => {
 })
 
 //DELETE request
-//Note: Should be returning the deleted user info. Bug in the database?
 server.delete('/api/users/:id', (req,res) => {
     const { id } = req.params
 
@@ -69,6 +68,35 @@ server.delete('/api/users/:id', (req,res) => {
     .catch(err => {
         res.status(500).json({
             error: 'The user could not be removed.'
+        })
+    })
+})
+
+//PUT request
+server.put('/api/users/:id', (req,res) => {
+    const { id } = req.params
+    const changes = req.body
+    console.log(req)
+
+    db.update(id, changes)
+    .then(user => {
+        if (user) {
+            if (changes.name === undefined || changes.bio === undefined) {
+                res.status(400).json({
+                    errorMessage: 'Please provide name and bio for the user.'
+                })
+            } else {
+                res.json(user)
+            }
+        } else {
+            res.status(404).json({
+                message: 'The user with the specified ID does not exist.'
+            })
+        }
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: 'The user information could not be modified.'
         })
     })
 })
