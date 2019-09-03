@@ -6,7 +6,7 @@ const server = express()
 
 server.use(express.json())
 
-//GET REQUEST
+//GET request
 server.get('/api/users', (req,res) => {
     db.find()
     .then(users => res.json(users))
@@ -17,7 +17,7 @@ server.get('/api/users', (req,res) => {
     })
 })
 
-//GET REQUEST BY USER ID
+//GET request by user ID
 server.get('/api/users/:id', (req,res) => {
     const { id } = req.params
 
@@ -32,6 +32,27 @@ server.get('/api/users/:id', (req,res) => {
             error: 'The user information could not be retrieved.'
         })
     })
+})
+
+//POST request
+server.post('/api/users', (req,res) => {
+    const userCheck = req.body
+
+    if (userCheck.name === undefined || userCheck.bio === undefined) {
+        res.status(400).json({
+            errorMessage: 'Please provide name and bio for the user'
+        })
+    } else {
+        db.insert(userCheck)
+        .then(user => {
+            res.status(201).json(user)
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: 'There was an error while saving the user to the database'
+            })
+        })
+    }
 })
 
 server.listen(5000, () => {
