@@ -59,9 +59,12 @@ server.post('/api/users', (req,res) => {
 server.delete('/api/users/:id', (req,res) => {
     const { id } = req.params
 
+    //Has errors. Better way to retrieve and display data that has been removed?
+    const delUser = db.findById(id).then(user => res.json(user))
+
     db.remove(id)
     .then(user => {
-        user ? res.json(user) : res.status(404).json({
+        user ? res.json(delUser) : res.status(404).json({
             message: 'The user with the specified ID does not exist.'
         })
     })
@@ -76,7 +79,6 @@ server.delete('/api/users/:id', (req,res) => {
 server.put('/api/users/:id', (req,res) => {
     const { id } = req.params
     const changes = req.body
-    console.log(req)
 
     db.update(id, changes)
     .then(user => {
@@ -86,7 +88,10 @@ server.put('/api/users/:id', (req,res) => {
                     errorMessage: 'Please provide name and bio for the user.'
                 })
             } else {
-                res.json(user)
+                res.json({
+                    ...changes,
+                    id: id
+                })
             }
         } else {
             res.status(404).json({
